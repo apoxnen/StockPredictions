@@ -3,6 +3,9 @@ import numpy as np
 from sklearn.svm import SVR
 import matplotlib.pyplot as plt
 from matplotlib import style
+import tweepy
+from textblob import TextBlob 
+from models import conf
 
 import csv
 
@@ -43,3 +46,32 @@ def predict_prices(dates, prices, x):
     plt.show()
 
     return svr_rbf.predict(x)[0], svr_lin.predict(x)[0], svr_poly.predict(x)[0]
+
+def login_to_twitter():
+    auth = tweepy.oauthhandler(conf.CONSUMER_KEY, conf.CONSUMER_SECRET)
+    auth.set_access_token(conf.ACCESS_TOKEN, conf.ACCESS_TOKEN_SECRET)
+    user = tweepy.api(auth)
+    return user
+
+def twitter_sentiment(quote, num_tweets=100, tweets_since='2018-01-01', tweets_until='2018-02-28'):
+    """
+    Logs into twitter via tweepy, and counts the positivity and objectivity of tweets.
+    Returns True if most tweets are positive.
+    """
+    user = login_to_twitter() 
+
+    tweets = user.search(quote, count=num_tweets, since=tweets_since, until=tweets_until)
+    positive_sent, null_sent = 0, 0
+    for tweet in tweets:
+        blob = TextBlob(tweet.text).sentiment
+        if blob.subjectivity is 0:
+            next
+        if blob.polarity > 0:
+            positive_sent += 1
+
+    if positive_sent > ((num_tweets - null_sent)/2):
+        print("This stock has positive sentiment")
+        return True
+    else:
+        print("Bad sentiment on stock!")
+        return False
