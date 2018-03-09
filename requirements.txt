@@ -4,3 +4,5 @@ matplotlib
 scipy
 pandas
 jupyter
+tweepy
+textblob
