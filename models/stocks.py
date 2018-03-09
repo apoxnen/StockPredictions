@@ -48,9 +48,9 @@ def predict_prices(dates, prices, x):
     return svr_rbf.predict(x)[0], svr_lin.predict(x)[0], svr_poly.predict(x)[0]
 
 def login_to_twitter():
-    auth = tweepy.oauthhandler(conf.CONSUMER_KEY, conf.CONSUMER_SECRET)
+    auth = tweepy.OAuthHandler(conf.CONSUMER_KEY, conf.CONSUMER_SECRET)
     auth.set_access_token(conf.ACCESS_TOKEN, conf.ACCESS_TOKEN_SECRET)
-    user = tweepy.api(auth)
+    user = tweepy.API(auth)
     return user
 
 def twitter_sentiment(quote, num_tweets=100, tweets_since='2018-01-01', tweets_until='2018-02-28'):
@@ -63,15 +63,20 @@ def twitter_sentiment(quote, num_tweets=100, tweets_since='2018-01-01', tweets_u
     tweets = user.search(quote, count=num_tweets, since=tweets_since, until=tweets_until)
     positive_sent, null_sent = 0, 0
     for tweet in tweets:
+        print(tweet.user.screen_name)
+        print(tweet.created_at)
+        print(tweet.text)
+        print()
         blob = TextBlob(tweet.text).sentiment
         if blob.subjectivity is 0:
+            null_sent += 1
             next
         if blob.polarity > 0:
             positive_sent += 1
 
     if positive_sent > ((num_tweets - null_sent)/2):
-        print("This stock has positive sentiment")
+        print("This stock has positive sentiment based on analyzed tweets")
         return True
     else:
-        print("Bad sentiment on stock!")
+        print("Bad sentiment on stock based on gathered tweets!")
         return False
