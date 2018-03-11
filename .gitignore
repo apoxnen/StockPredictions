@@ -1,4 +1,4 @@
 .ipynb_checkpoints
 *.csv
-models/conf.py
 *.pyc
+models/conf.py
