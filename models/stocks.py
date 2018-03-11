@@ -58,22 +58,26 @@ def twitter_sentiment(quote, num_tweets=100, tweets_since='2018-01-01', tweets_u
     Logs into twitter via tweepy, and counts the positivity and objectivity of tweets.
     Returns True if most tweets are positive.
     """
-    user = login_to_twitter() 
+    user = login_to_twitter()
 
-    tweets = user.search(quote, count=num_tweets, since=tweets_since, until=tweets_until)
+    tweets = user.search(quote, count=num_tweets)
     positive_sent, null_sent = 0, 0
     for tweet in tweets:
+        blob = TextBlob(tweet.text).sentiment
         print(tweet.user.screen_name)
         print(tweet.created_at)
         print(tweet.text)
+        print("likes: " + str(tweet.favorite_count))
+        print("retweets: " + str(tweet.retweet_count))
+        print(blob.subjectivity, blob.polarity)
         print()
-        blob = TextBlob(tweet.text).sentiment
-        if blob.subjectivity is 0:
+        if blob.subjectivity > 0.5:
             null_sent += 1
             next
         if blob.polarity > 0:
             positive_sent += 1
-
+    
+    print(positive_sent, num_tweets - null_sent)
     if positive_sent > ((num_tweets - null_sent)/2):
         print("This stock has positive sentiment based on analyzed tweets")
         return True
